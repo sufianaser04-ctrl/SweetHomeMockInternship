@@ -902,6 +902,10 @@ public class CatalogPieceOfFurniture implements Comparable<CatalogPieceOfFurnitu
     }
     return this.filterCollationKey;
   }
+
+  public float getVolume(){
+    return this.width * this.height * this.depth;
+  }
   
   /**
    * Returns <code>true</code> if the given filter collation key is a sub part of the first array collator key.
