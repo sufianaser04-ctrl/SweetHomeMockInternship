@@ -2008,6 +2008,44 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
    * that makes it fill <code>pageFormat</code> imageable size if this attribute is <code>null</code>.
    */
   public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
+    // collect the  levels into a list in order
+    List<Level> printedLevels = new ArrayList<Level>();
+    for (Level level: this.home.getLevels()) {
+      // first check if level is viewable
+      if (level.isViewable()) {
+        printedLevels.add(level);
+      }
+    }
+
+    // if home does not have levels
+    if (printedLevels.isEmpty()) {
+      int originalPlan = printSelectedLevel(g, pageFormat, pageIndex);
+      // Home without levels: print the plan as before
+      return originalPlan;
+    }
+
+    // follow rule of one page per level
+    if (pageIndex < 0 || pageIndex >= printedLevels.size()) {
+      return NO_SUCH_PAGE;
+    }
+
+    Level originalLevel = this.home.getSelectedLevel();
+    try {
+      // select this page's level so the plan draws that level
+      this.home.setSelectedLevel(printedLevels.get(pageIndex));
+      return printSelectedLevel(g, pageFormat, 0);
+    }
+
+    finally {
+      // convert to original level
+      this.home.setSelectedLevel(originalLevel);
+    }
+  }
+
+  /**
+   * prints the plan of the currently selected level
+   */
+  public int printSelectedLevel(Graphics g, PageFormat pageFormat, int pageIndex) {
     List<Selectable> printedItems = getPaintedItems(); 
     Rectangle2D printedItemBounds = getItemsBounds(g, printedItems);
     if (printedItemBounds != null) {
